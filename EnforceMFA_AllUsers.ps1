@@ -1,5 +1,3 @@
-#IN PROGRESS, NOT FINISHED
-
 # This script requires MSOnline, please run "Install-Module MSOnline" before using this.
 
 #Import and connect to MSonline
@@ -8,32 +6,32 @@ $Credentials = Get-Credential
 Connect-MsolService -Credential $Credentials
 
 function Set-MfaState {
-    [CmdletBinding()]
     param(
-        [Parameter(ValueFromPipelineByPropertyName=$True)]
+        [Parameter(Mandatory=$true, Position=0)]
         $ObjectId,
-        [Parameter(ValueFromPipelineByPropertyName=$True)]
-        $UserPrincipalName,
+        [Parameter(Mandatory=$true, Position=1)]
+        [string]$UserPrincipalName,
+        [Parameter(Mandatory=$true, Position=2)]
         [ValidateSet("Disabled","Enabled","Enforced")]
-        $State
+        [string]$State
     )
     Process {
-        Write-Verbose ("Setting MFA state for user '{0}' to '{1}'." -f $ObjectId, $State)
         $Requirements = @()
-        if ($State -ne "Disabled") {
+        if ($state -ne "Disabled") {
             $Requirement =
                 [Microsoft.Online.Administration.StrongAuthenticationRequirement]::new()
             $Requirement.RelyingParty = "*"
             $Requirement.State = $State
             $Requirements += $Requirement
         }
-        Set-MsolUser -ObjectId $ObjectId -UserPrincipalName $UserPrincipalName `
-                     -StrongAuthenticationRequirements $Requirements
+        Set-MsolUser -ObjectId $ObjectId -UserPrincipalName $UserPrincipalName -StrongAuthenticationRequirements $Requirements
     }
 }
 
-$Users = Get-MsolUSer -All 
+$Users = Get-MsolUser -All 
 foreach ($user in $users) {
-    Set-MfaState($user.ObjectId, $User.UserPrincipalName, "Enforced")
+    $name = $user.UserPrincipalName
+    $objectid = $user.ObjectId
+    $state = "Enforced"
+    Set-MfaState $objectid $name $state
 }
-
