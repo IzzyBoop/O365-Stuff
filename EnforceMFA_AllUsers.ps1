@@ -1,5 +1,8 @@
 # This script requires MSOnline, please run "Install-Module MSOnline" before using this.
 
+# NOTE: If a customer has "Conditional Access" enabled we cannot run this script. 
+# Conditional Access requires Per-User MFA to be disabled
+
 #Import and connect to MSonline
 Import-Module MSOnline
 $Credentials = Get-Credential
